@@ -1,0 +1,25 @@
+/* 1. Hide the Homepage Recommendations Grid */
+ytd-browse[page-subtype="home"] #contents {
+  display: none !important;
+}
+
+/* 2. Hide "Up Next" / Suggested Videos in the Watch page sidebar */
+#related {
+  display: none !important;
+}
+
+/* 3. Hide Comments */
+#comments {
+  display: none !important;
+}
+
+/* 4. Hide Endscreen video suggestion tiles */
+.ytp-endscreen-content {
+  display: none !important;
+}
+
+/* 5. Hide Shorts navigation links from the side drawer */
+ytd-guide-entry-renderer:has(a[title="Shorts"]),
+ytd-mini-guide-entry-renderer[aria-label="Shorts"] {
+  display: none !important;
+}
