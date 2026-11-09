@@ -69,6 +69,23 @@ function getVideoId() {
   return params.get('v');
 }
 
+function getCleanVideoTitle() {
+  const titleEl = document.querySelector('h1.ytd-watch-metadata yt-formatted-string') ||
+                  document.querySelector('#title h1 yt-formatted-string') ||
+                  document.querySelector('h1.title');
+  if (titleEl && titleEl.textContent.trim()) {
+    return titleEl.textContent.trim();
+  }
+  return document.title.replace(' - YouTube', '').trim() || 'Untitled Lecture';
+}
+
+function getChannelName() {
+  const channelEl = document.querySelector('#channel-name #text a') ||
+                    document.querySelector('ytd-channel-name yt-formatted-string a') ||
+                    document.querySelector('#upload-info #channel-name a');
+  return channelEl?.textContent?.trim() || 'YouTube Creator';
+}
+
 // --- Frame Capture Engine ---
 let pendingScreenshot = null;
 
@@ -171,7 +188,10 @@ function injectStudyDrawer() {
         <span style="color:#777; font-size:11px;">Alt+N (time) | Alt+S (snap)</span>
       </div>
       <textarea id="ft-note-input" placeholder="Take a note (Alt + N)..." style="width:100%; height:70px; background:#222; border:1px solid #444; border-radius:4px; color:#fff; padding:6px; resize:none; box-sizing:border-box; outline:none;"></textarea>
-      <input type="text" id="ft-tags-input" placeholder="Tags: #dsa" style="width:100%; background:#222; border:1px solid #444; border-radius:4px; color:#fff; padding:6px; box-sizing:border-box; outline:none;" />
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+        <input type="text" id="ft-tags-input" placeholder="Tags: #dsa #math" style="width:100%; background:#222; border:1px solid #444; border-radius:4px; color:#fff; padding:6px; box-sizing:border-box; outline:none; font-size:11px;" />
+        <input type="text" id="ft-problem-input" placeholder="Problem: leetcode.com/..." style="width:100%; background:#222; border:1px solid #444; border-radius:4px; color:#fff; padding:6px; box-sizing:border-box; outline:none; font-size:11px;" />
+      </div>
       
       <div id="ft-screenshot-preview-container">
         <img id="ft-screenshot-preview-img" src="" alt="Slide Preview" />
@@ -196,11 +216,62 @@ function injectStudyDrawer() {
   renderNotesList();
 }
 
+// --- 3. Sync Video Lecture Index (for Dashboard & Problem Hub) ---
+function syncVideoMetadata(videoId, notes) {
+  if (!videoId) return;
+
+  chrome.storage.local.get(['ft_videos'], (res) => {
+    const registry = res.ft_videos || {};
+    const title = getCleanVideoTitle();
+    const channel = getChannelName();
+
+    const allTags = new Set();
+    const problemLinks = [];
+
+    notes.forEach((note) => {
+      (note.tags || []).forEach(t => allTags.add(t));
+      if (note.problemUrl && !problemLinks.includes(note.problemUrl)) {
+        problemLinks.push(note.problemUrl);
+      }
+    });
+
+    registry[videoId] = {
+      id: videoId,
+      title: title || registry[videoId]?.title || 'YouTube Lecture',
+      channel: channel || registry[videoId]?.channel || 'YouTube Creator',
+      url: `https://www.youtube.com/watch?v=${videoId}`,
+      noteCount: notes.length,
+      screenshotCount: notes.filter(n => !!n.screenshot).length,
+      tags: Array.from(allTags),
+      problemLinks: problemLinks,
+      updatedAt: Date.now(),
+      createdAt: registry[videoId]?.createdAt || Date.now()
+    };
+
+    chrome.storage.local.set({ ft_videos: registry }, () => {
+      console.log(`[FocusTube] Synced lecture metadata for ${videoId} (${notes.length} notes).`);
+    });
+  });
+}
+
+function deleteNote(videoId, noteId) {
+  chrome.storage.local.get([videoId], (res) => {
+    const notes = res[videoId] || [];
+    const updated = notes.filter(n => n.id !== noteId);
+
+    chrome.storage.local.set({ [videoId]: updated }, () => {
+      syncVideoMetadata(videoId, updated);
+      renderNotesList();
+    });
+  });
+}
+
 function bindDrawerEvents() {
   const textarea = document.getElementById('ft-note-input');
   const timeDisplay = document.getElementById('ft-current-time');
   const saveBtn = document.getElementById('ft-save-btn');
   const tagsInput = document.getElementById('ft-tags-input');
+  const problemInput = document.getElementById('ft-problem-input');
   const snapBtn = document.getElementById('ft-snap-btn');
   const previewContainer = document.getElementById('ft-screenshot-preview-container');
   const previewImg = document.getElementById('ft-screenshot-preview-img');
@@ -278,10 +349,15 @@ function bindDrawerEvents() {
     const videoId = getVideoId();
     if (!videoId) return;
 
-    const tags = tagsInput.value
-      .split(' ')
-      .map(t => t.trim())
-      .filter(t => t.length > 0);
+    const rawTags = tagsInput.value.trim();
+    const tags = rawTags
+      ? rawTags.split(/[\s,]+/).map(t => t.startsWith('#') ? t : `#${t}`).filter(t => t.length > 1)
+      : [];
+
+    let problemUrl = problemInput.value.trim();
+    if (problemUrl && !/^https?:\/\//i.test(problemUrl)) {
+      problemUrl = 'https://' + problemUrl;
+    }
 
     const newNote = {
       id: Date.now().toString(),
@@ -289,6 +365,7 @@ function bindDrawerEvents() {
       timestampFormatted: formatTime(activeTimestamp),
       content: content || '(Slide capture only)',
       tags: tags,
+      problemUrl: problemUrl || null,
       screenshot: pendingScreenshot || null,
       createdAt: Date.now()
     };
@@ -299,9 +376,11 @@ function bindDrawerEvents() {
       chrome.storage.local.set({ [videoId]: updated }, () => {
         textarea.value = '';
         tagsInput.value = '';
+        problemInput.value = '';
         pendingScreenshot = null;
         previewImg.src = '';
         previewContainer.classList.remove('active');
+        syncVideoMetadata(videoId, updated);
         renderNotesList();
       });
     });
@@ -334,15 +413,37 @@ function renderNotesList() {
         screenshotHtml = `<img src="${note.screenshot}" class="ft-note-thumb" title="Click to enlarge slide" alt="Slide snapshot" />`;
       }
 
+      let tagsHtml = '';
+      if (note.tags && note.tags.length > 0) {
+        tagsHtml = note.tags.map(t => `<span class="ft-tag-pill">${t}</span>`).join(' ');
+      }
+
+      let problemHtml = '';
+      if (note.problemUrl) {
+        let label = 'Problem';
+        try {
+          const u = new URL(note.problemUrl);
+          label = u.hostname.replace('www.', '');
+          if (label.includes('leetcode')) label = 'LeetCode';
+          else if (label.includes('github')) label = 'GitHub';
+          else if (label.includes('hackerrank')) label = 'HackerRank';
+        } catch (_) {}
+        problemHtml = `<a href="${note.problemUrl}" target="_blank" class="ft-problem-pill" title="${note.problemUrl}">🔗 ${label}</a>`;
+      }
+
       item.innerHTML = `
-        <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
           <span class="ft-seek-btn" data-time="${note.timestamp}" style="color:#3ea6ff; cursor:pointer; font-weight:bold; font-family:monospace;">
             ${note.timestampFormatted}
           </span>
-          <span style="color:#888;">${note.tags.join(' ')}</span>
+          <div class="ft-note-actions">
+            ${problemHtml}
+            <button type="button" class="ft-delete-btn" title="Delete note">✕</button>
+          </div>
         </div>
         ${screenshotHtml}
-        <div style="color:#ddd; word-break:break-word;">${note.content}</div>
+        <div style="color:#ddd; word-break:break-word; line-height:1.4;">${note.content}</div>
+        ${tagsHtml ? `<div style="margin-top:6px; display:flex; flex-wrap:wrap; gap:4px;">${tagsHtml}</div>` : ''}
       `;
 
       // Click timestamp to seek video
@@ -361,6 +462,11 @@ function renderNotesList() {
           openLightbox(note.screenshot);
         });
       }
+
+      // Delete note
+      item.querySelector('.ft-delete-btn').addEventListener('click', () => {
+        deleteNote(videoId, note.id);
+      });
 
       list.appendChild(item);
     });

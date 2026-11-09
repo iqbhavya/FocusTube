@@ -123,7 +123,56 @@
   padding-top: 10px;
 }
 
-/* --- Frame Capture & Screenshot Preview --- */
+/* --- Note Badges, Problem Links & Actions --- */
+.ft-note-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ft-problem-pill {
+  background: #14532d;
+  color: #86efac;
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-weight: 500;
+  transition: background 0.15s ease;
+}
+
+.ft-problem-pill:hover {
+  background: #166534;
+  color: #bbf7d0;
+}
+
+.ft-tag-pill {
+  background: #27272a;
+  color: #a1a1aa;
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.ft-delete-btn {
+  background: transparent;
+  color: #71717a;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  line-height: 1;
+}
+
+.ft-delete-btn:hover {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+
 .ft-btn-row {
   display: flex;
   gap: 6px;
