@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FocusTube</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="popup-card">
+    <!-- Header -->
+    <header class="popup-header">
+      <div class="brand">
+        <span class="logo">🎓</span>
+        <div class="brand-title">
+          <h2>FocusTube</h2>
+          <span class="version">v1.1</span>
+        </div>
+      </div>
+      <span class="badge active">Focus Mode</span>
+    </header>
+
+    <!-- Dashboard Quick Launch Button -->
+    <div class="launch-section">
+      <button id="open-dashboard-btn" class="btn btn-primary w-full">
+        📚 Open Study Library ↗
+      </button>
+    </div>
+
+    <!-- Shorts Quota Section -->
+    <section class="section-card">
+      <div class="section-header">
+        <span class="section-title">⏱️ Shorts Daily Allowance</span>
+        <span id="shorts-count-text" class="quota-count">0 / 5</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div id="shorts-progress-bar" class="progress-bar-fill" style="width: 0%;"></div>
+      </div>
+      <div class="limit-row">
+        <label for="shorts-limit-input">Daily allowance:</label>
+        <div class="stepper">
+          <button id="limit-dec-btn" class="stepper-btn">-</button>
+          <input type="number" id="shorts-limit-input" value="5" min="0" max="50" />
+          <button id="limit-inc-btn" class="stepper-btn">+</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quick Stats -->
+    <section class="stats-row">
+      <div class="stat-box">
+        <span class="stat-number" id="popup-stat-lectures">0</span>
+        <span class="stat-caption">Lectures</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-number" id="popup-stat-notes">0</span>
+        <span class="stat-caption">Notes</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-number" id="popup-stat-slides">0</span>
+        <span class="stat-caption">Slides</span>
+      </div>
+    </section>
+
+    <!-- Shortcuts Cheat Sheet -->
+    <div class="shortcuts-card">
+      <div class="shortcut-item">
+        <kbd>Alt</kbd> + <kbd>N</kbd>
+        <span>Current Timestamp</span>
+      </div>
+      <div class="shortcut-item">
+        <kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>N</kbd>
+        <span>Rewind 5s</span>
+      </div>
+      <div class="shortcut-item">
+        <kbd>Alt</kbd> + <kbd>S</kbd>
+        <span>Snap Video Slide</span>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

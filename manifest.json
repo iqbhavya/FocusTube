@@ -10,6 +10,10 @@
   "host_permissions": [
     "*://*.youtube.com/*"
   ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "FocusTube"
+  },
   "content_scripts": [
     {
       "matches": ["*://*.youtube.com/*"],
