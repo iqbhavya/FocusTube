@@ -14,6 +14,11 @@
       "matches": ["*://*.youtube.com/*"],
       "css": ["content/blocker.css"],
       "run_at": "document_start"
+    },
+    {
+      "matches": ["*://*.youtube.com/*"],
+      "js": ["content/content.js"],
+      "run_at": "document_idle"
     }
   ]
 }
