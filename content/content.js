@@ -139,63 +139,120 @@ function openLightbox(src) {
   }
 }
 
+// --- Floating Minimized Study Bubble ---
+function injectDrawerBubble() {
+  if (document.getElementById('ft-drawer-bubble')) return;
+  const bubble = document.createElement('div');
+  bubble.id = 'ft-drawer-bubble';
+  bubble.innerHTML = `<span>🎓 FocusTube</span><span id="ft-bubble-count" style="background:#3ea6ff; color:#000; border-radius:10px; font-size:10px; padding:1px 6px; font-weight:bold;">0</span>`;
+  bubble.addEventListener('click', () => {
+    const drawer = document.getElementById('focustube-drawer');
+    if (drawer) {
+      drawer.style.display = 'flex';
+      bubble.style.display = 'none';
+    }
+  });
+  document.body.appendChild(bubble);
+}
+
+// --- Draggable Drawer Handler ---
+function enableDrawerDragging(drawer) {
+  const header = drawer.querySelector('.ft-header');
+  if (!header) return;
+
+  let isDragging = false;
+  let startX = 0, startY = 0;
+  let initialLeft = 0, initialTop = 0;
+
+  header.addEventListener('mousedown', (e) => {
+    if (e.target.closest('a') || e.target.closest('button')) return;
+
+    isDragging = true;
+    startX = e.clientX;
+    startY = e.clientY;
+
+    const rect = drawer.getBoundingClientRect();
+    initialLeft = rect.left;
+    initialTop = rect.top;
+
+    drawer.style.right = 'auto';
+    drawer.style.left = `${initialLeft}px`;
+    drawer.style.top = `${initialTop}px`;
+
+    document.body.style.userSelect = 'none';
+
+    function onMouseMove(moveEvent) {
+      if (!isDragging) return;
+      const deltaX = moveEvent.clientX - startX;
+      const deltaY = moveEvent.clientY - startY;
+
+      let newLeft = initialLeft + deltaX;
+      let newTop = initialTop + deltaY;
+
+      newLeft = Math.max(10, Math.min(window.innerWidth - drawer.offsetWidth - 10, newLeft));
+      newTop = Math.max(10, Math.min(window.innerHeight - drawer.offsetHeight - 10, newTop));
+
+      drawer.style.left = `${newLeft}px`;
+      drawer.style.top = `${newTop}px`;
+    }
+
+    function onMouseUp() {
+      isDragging = false;
+      document.body.style.userSelect = '';
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    }
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+  });
+}
+
 // --- 2. Study Drawer Injection & Interactions ---
 let activeTimestamp = 0;
 
 function injectStudyDrawer() {
   const isWatchPage = window.location.pathname.includes('/watch');
   const existingDrawer = document.getElementById('focustube-drawer');
+  const existingBubble = document.getElementById('ft-drawer-bubble');
 
   if (!isWatchPage) {
     if (existingDrawer) existingDrawer.remove();
+    if (existingBubble) existingBubble.remove();
     return;
   }
 
   injectLightbox();
+  injectDrawerBubble();
 
   if (existingDrawer) return;
 
   const drawer = document.createElement('div');
   drawer.id = 'focustube-drawer';
-  
-  // Explicit inline styles to ensure it cannot be hidden or collapsed
-  drawer.style.cssText = `
-    position: fixed !important;
-    top: 70px !important;
-    right: 20px !important;
-    width: 320px !important;
-    height: 520px !important;
-    background-color: #181818 !important;
-    color: #ffffff !important;
-    border: 2px solid #3ea6ff !important;
-    border-radius: 8px !important;
-    z-index: 2147483647 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    padding: 16px !important;
-    box-sizing: border-box !important;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.8) !important;
-  `;
 
   const dashboardUrl = chrome.runtime.getURL('dashboard/dashboard.html');
 
   drawer.innerHTML = `
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid #333; padding-bottom:8px;">
-      <div style="display:flex; align-items:center; gap:8px;">
-        <h3 style="margin:0; color:#3ea6ff; font-size:16px;">FocusTube Notes</h3>
-        <span style="background:#333; color:#aaa; font-size:11px; padding:2px 6px; border-radius:4px;">Study Mode</span>
+    <div class="ft-header" title="Drag to reposition">
+      <div class="ft-header-left">
+        <span style="font-size:14px;">🎓</span>
+        <h3>FocusTube</h3>
+        <span class="ft-badge">Study Mode</span>
       </div>
-      <a href="${dashboardUrl}" target="_blank" style="background:#222; color:#3ea6ff; border:1px solid #444; border-radius:4px; padding:2px 8px; font-size:11px; text-decoration:none; font-weight:600;" title="Open Study Library">Library ↗</a>
+      <div class="ft-header-actions">
+        <a href="${dashboardUrl}" target="_blank" class="ft-icon-btn" title="Open Study Library">Library ↗</a>
+        <button id="ft-minimize-btn" class="ft-icon-btn" title="Minimize Drawer">–</button>
+      </div>
     </div>
-    <div style="display:flex; flex-direction:column; gap:8px;">
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <span id="ft-current-time" style="background:#222; color:#3ea6ff; padding:2px 6px; border-radius:4px; font-family:monospace; font-weight:bold;">00:00</span>
-        <span style="color:#777; font-size:11px;">Alt+N (time) | Alt+S (snap)</span>
+    <div class="ft-input-section">
+      <div class="ft-time-row">
+        <span id="ft-current-time" class="ft-timestamp-pill">00:00</span>
+        <span class="ft-hotkey-hint">Alt+N (time) | Alt+S (snap)</span>
       </div>
-      <textarea id="ft-note-input" placeholder="Take a note (Alt + N)..." style="width:100%; height:70px; background:#222; border:1px solid #444; border-radius:4px; color:#fff; padding:6px; resize:none; box-sizing:border-box; outline:none;"></textarea>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
-        <input type="text" id="ft-tags-input" placeholder="Tags: #dsa #math" style="width:100%; background:#222; border:1px solid #444; border-radius:4px; color:#fff; padding:6px; box-sizing:border-box; outline:none; font-size:11px;" />
-        <input type="text" id="ft-problem-input" placeholder="Problem: leetcode.com/..." style="width:100%; background:#222; border:1px solid #444; border-radius:4px; color:#fff; padding:6px; box-sizing:border-box; outline:none; font-size:11px;" />
+      <textarea id="ft-note-input" placeholder="Take a note (video pauses while typing)..."></textarea>
+      <div class="ft-inputs-grid">
+        <input type="text" id="ft-tags-input" class="ft-sub-input" placeholder="Tags: #dsa #math" />
+        <input type="text" id="ft-problem-input" class="ft-sub-input" placeholder="Problem: leetcode.com/..." />
       </div>
       
       <div id="ft-screenshot-preview-container">
@@ -207,16 +264,16 @@ function injectStudyDrawer() {
         <button type="button" id="ft-snap-btn" class="ft-snap-btn" title="Capture active video slide frame (Alt+S)">
           📸 Snap Slide
         </button>
-        <button id="ft-save-btn" style="flex:1.2; background:#3ea6ff; color:#000; border:none; border-radius:4px; padding:6px; font-weight:bold; cursor:pointer;">Save Note</button>
+        <button id="ft-save-btn" class="ft-save-btn">Save Note</button>
       </div>
     </div>
-    <div id="ft-notes-list" style="flex:1; overflow-y:auto; margin-top:10px;"></div>
+    <div id="ft-notes-list"></div>
   `;
 
-  // Attach directly to body
   document.body.appendChild(drawer);
-  console.log('[FocusTube] Drawer appended with force styles!');
+  console.log('[FocusTube] Modern study drawer injected!');
 
+  enableDrawerDragging(drawer);
   bindDrawerEvents();
   renderNotesList();
 }
@@ -272,6 +329,7 @@ function deleteNote(videoId, noteId) {
 }
 
 function bindDrawerEvents() {
+  const drawer = document.getElementById('focustube-drawer');
   const textarea = document.getElementById('ft-note-input');
   const timeDisplay = document.getElementById('ft-current-time');
   const saveBtn = document.getElementById('ft-save-btn');
@@ -281,6 +339,16 @@ function bindDrawerEvents() {
   const previewContainer = document.getElementById('ft-screenshot-preview-container');
   const previewImg = document.getElementById('ft-screenshot-preview-img');
   const removePreviewBtn = document.getElementById('ft-remove-preview-btn');
+  const minimizeBtn = document.getElementById('ft-minimize-btn');
+  const bubble = document.getElementById('ft-drawer-bubble');
+
+  // Minimize drawer to floating bubble
+  if (minimizeBtn) {
+    minimizeBtn.addEventListener('click', () => {
+      if (drawer) drawer.style.display = 'none';
+      if (bubble) bubble.style.display = 'flex';
+    });
+  }
 
   // 1. Frame capture logic (Offscreen canvas -> base64)
   function triggerFrameCapture() {
@@ -403,15 +471,14 @@ function renderNotesList() {
 
     notes.sort((a, b) => a.timestamp - b.timestamp);
 
+    const bubbleCount = document.getElementById('ft-bubble-count');
+    if (bubbleCount) {
+      bubbleCount.textContent = notes.length;
+    }
+
     notes.forEach((note) => {
       const item = document.createElement('div');
-      item.style.cssText = `
-        background: #222;
-        padding: 8px;
-        border-radius: 4px;
-        border-left: 3px solid #3ea6ff;
-        font-size: 12px;
-      `;
+      item.className = 'ft-note-card';
 
       let screenshotHtml = '';
       if (note.screenshot) {
