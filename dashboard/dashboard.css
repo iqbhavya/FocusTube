@@ -440,22 +440,57 @@ body {
   letter-spacing: 0.5px;
 }
 
+/* Brand-Specific Problem Pills */
 .problem-pill {
-  background-color: var(--accent-green-bg);
-  color: var(--accent-green-text);
-  border: 1px solid rgba(134, 239, 172, 0.25);
   border-radius: 6px;
-  padding: 3px 8px;
+  padding: 3px 9px;
   text-decoration: none;
-  font-weight: 500;
+  font-weight: 600;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  transition: background-color 0.15s ease;
+  gap: 5px;
+  font-size: 11px;
+  transition: all 0.15s ease;
 }
 
-.problem-pill:hover {
-  background-color: #166534;
+.problem-pill-leetcode {
+  background-color: rgba(255, 161, 22, 0.12);
+  color: #ffa116;
+  border: 1px solid rgba(255, 161, 22, 0.3);
+}
+.problem-pill-leetcode:hover {
+  background-color: rgba(255, 161, 22, 0.22);
+  border-color: #ffa116;
+}
+
+.problem-pill-github {
+  background-color: rgba(147, 51, 234, 0.12);
+  color: #c084fc;
+  border: 1px solid rgba(192, 132, 252, 0.3);
+}
+.problem-pill-github:hover {
+  background-color: rgba(147, 51, 234, 0.22);
+  border-color: #c084fc;
+}
+
+.problem-pill-hackerrank {
+  background-color: rgba(34, 197, 94, 0.12);
+  color: #4ade80;
+  border: 1px solid rgba(74, 222, 128, 0.3);
+}
+.problem-pill-hackerrank:hover {
+  background-color: rgba(34, 197, 94, 0.22);
+  border-color: #4ade80;
+}
+
+.problem-pill-generic {
+  background-color: rgba(62, 166, 255, 0.12);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+.problem-pill-generic:hover {
+  background-color: rgba(62, 166, 255, 0.22);
+  border-color: #38bdf8;
 }
 
 .add-problem-pill {
@@ -575,7 +610,17 @@ body {
   color: var(--text-main);
   white-space: pre-wrap;
   word-break: break-word;
-  line-height: 1.4;
+  line-height: 1.5;
+}
+
+.note-content-text code {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+  color: #38bdf8;
 }
 
 /* Empty State */

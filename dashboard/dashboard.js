@@ -252,8 +252,8 @@ function createLectureCard(lec) {
   let problemBadgesHtml = '';
   if (lec.problemLinks && lec.problemLinks.length > 0) {
     problemBadgesHtml = lec.problemLinks.map(url => {
-      const label = getDomainLabel(url);
-      return `<a href="${url}" target="_blank" class="problem-pill" title="${url}">🔗 ${label}</a>`;
+      const info = getProblemBadgeInfo(url);
+      return `<a href="${url}" target="_blank" class="problem-pill ${info.brandClass}" title="${url}">🔗 ${info.label}</a>`;
     }).join('');
   }
 
@@ -375,7 +375,8 @@ function renderNotesGrid(lec, container) {
 
     let problemHtml = '';
     if (note.problemUrl) {
-      problemHtml = `<a href="${note.problemUrl}" target="_blank" class="problem-pill" style="font-size:10px; margin-top:4px;">🔗 ${getDomainLabel(note.problemUrl)}</a>`;
+      const info = getProblemBadgeInfo(note.problemUrl);
+      problemHtml = `<a href="${note.problemUrl}" target="_blank" class="problem-pill ${info.brandClass}" style="font-size:10px; margin-top:4px;">🔗 ${info.label}</a>`;
     }
 
     item.innerHTML = `
@@ -386,7 +387,7 @@ function renderNotesGrid(lec, container) {
         <button class="note-delete-btn" title="Delete this note">✕</button>
       </div>
       ${screenshotHtml}
-      <div class="note-content-text">${escapeHtml(note.content)}</div>
+      <div class="note-content-text">${formatNoteContent(note.content)}</div>
       ${problemHtml}
     `;
 
@@ -618,6 +619,36 @@ function exportAllMarkdown() {
 }
 
 // --- 11. Helpers ---
+function getProblemBadgeInfo(urlStr) {
+  try {
+    const parsed = new URL(urlStr);
+    const host = parsed.hostname.toLowerCase().replace('www.', '');
+    if (host.includes('leetcode')) {
+      const slug = parsed.pathname.split('/')[2] || 'Problem';
+      const cleanSlug = slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+      return { label: `LeetCode (${cleanSlug})`, brandClass: 'problem-pill-leetcode' };
+    }
+    if (host.includes('github')) {
+      const parts = parsed.pathname.replace(/^\//, '').split('/');
+      const repo = parts[1] || parts[0] || 'Repo';
+      return { label: `GitHub (${repo})`, brandClass: 'problem-pill-github' };
+    }
+    if (host.includes('hackerrank')) {
+      const challenge = parsed.pathname.split('/')[2] || 'Challenge';
+      return { label: `HackerRank (${challenge})`, brandClass: 'problem-pill-hackerrank' };
+    }
+    return { label: host, brandClass: 'problem-pill-generic' };
+  } catch (_) {
+    return { label: 'External Link', brandClass: 'problem-pill-generic' };
+  }
+}
+
+function formatNoteContent(text) {
+  if (!text) return '';
+  const escaped = escapeHtml(text);
+  return escaped.replace(/`([^`]+)`/g, '<code>$1</code>');
+}
+
 function getDomainLabel(urlStr) {
   try {
     const parsed = new URL(urlStr);

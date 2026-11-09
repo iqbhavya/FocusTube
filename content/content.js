@@ -148,8 +148,8 @@ function injectDrawerBubble() {
   bubble.addEventListener('click', () => {
     const drawer = document.getElementById('focustube-drawer');
     if (drawer) {
-      drawer.style.display = 'flex';
-      bubble.style.display = 'none';
+      drawer.classList.remove('ft-minimized');
+      bubble.classList.remove('ft-active');
     }
   });
   document.body.appendChild(bubble);
@@ -175,9 +175,10 @@ function enableDrawerDragging(drawer) {
     initialLeft = rect.left;
     initialTop = rect.top;
 
-    drawer.style.right = 'auto';
-    drawer.style.left = `${initialLeft}px`;
-    drawer.style.top = `${initialTop}px`;
+    drawer.style.setProperty('right', 'auto', 'important');
+    drawer.style.setProperty('bottom', 'auto', 'important');
+    drawer.style.setProperty('left', `${initialLeft}px`, 'important');
+    drawer.style.setProperty('top', `${initialTop}px`, 'important');
 
     document.body.style.userSelect = 'none';
 
@@ -192,8 +193,8 @@ function enableDrawerDragging(drawer) {
       newLeft = Math.max(10, Math.min(window.innerWidth - drawer.offsetWidth - 10, newLeft));
       newTop = Math.max(10, Math.min(window.innerHeight - drawer.offsetHeight - 10, newTop));
 
-      drawer.style.left = `${newLeft}px`;
-      drawer.style.top = `${newTop}px`;
+      drawer.style.setProperty('left', `${newLeft}px`, 'important');
+      drawer.style.setProperty('top', `${newTop}px`, 'important');
     }
 
     function onMouseUp() {
@@ -344,9 +345,11 @@ function bindDrawerEvents() {
 
   // Minimize drawer to floating bubble
   if (minimizeBtn) {
-    minimizeBtn.addEventListener('click', () => {
-      if (drawer) drawer.style.display = 'none';
-      if (bubble) bubble.style.display = 'flex';
+    minimizeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      if (drawer) drawer.classList.add('ft-minimized');
+      if (bubble) bubble.classList.add('ft-active');
     });
   }
 
