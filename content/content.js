@@ -545,10 +545,66 @@ function renderNotesList() {
   });
 }
 
-// 3. Navigation Events & Observers
+// --- 3. Homepage Focus Hero Banner ---
+function injectHomeFocusHero() {
+  const isHomePage = window.location.pathname === '/' || window.location.pathname === '';
+  const existingHero = document.getElementById('ft-home-hero');
+
+  if (!isHomePage) {
+    if (existingHero) existingHero.remove();
+    return;
+  }
+
+  if (existingHero) return;
+
+  const browseContainer = document.querySelector('ytd-browse[page-subtype="home"]') ||
+                          document.querySelector('ytd-browse');
+  if (!browseContainer) return;
+
+  const hero = document.createElement('div');
+  hero.id = 'ft-home-hero';
+
+  const dashboardUrl = chrome.runtime.getURL('dashboard/dashboard.html');
+
+  hero.innerHTML = `
+    <div class="ft-hero-badge">🎓 FocusTube Study Mode</div>
+    <h1 class="ft-hero-title">Distraction-Free Study Workspace</h1>
+    <p class="ft-hero-subtitle">
+      Algorithmic recommendation feeds, sidebar rabbit holes, and comments are blocked to protect your focus. Search for your lecture or jump straight to your study library.
+    </p>
+    <div class="ft-hero-actions">
+      <a href="${dashboardUrl}" target="_blank" class="ft-hero-btn ft-hero-btn-primary">
+        📚 Open Study Library ↗
+      </a>
+      <button id="ft-hero-search-btn" class="ft-hero-btn ft-hero-btn-secondary">
+        🔍 Search Lectures
+      </button>
+    </div>
+    <div class="ft-hero-shortcuts">
+      <span><kbd>Alt</kbd> + <kbd>N</kbd> Timestamp Note</span>
+      <span><kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>N</kbd> Rewind 5s</span>
+      <span><kbd>Alt</kbd> + <kbd>S</kbd> Snap Slide</span>
+    </div>
+  `;
+
+  // Focus YouTube search box on click
+  hero.querySelector('#ft-hero-search-btn').addEventListener('click', () => {
+    const searchInput = document.querySelector('input#search') || document.querySelector('input.ytd-searchbox');
+    if (searchInput) {
+      searchInput.focus();
+      searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  });
+
+  browseContainer.prepend(hero);
+  console.log('[FocusTube] Homepage focus hero injected!');
+}
+
+// 4. Navigation Events & Observers
 window.addEventListener('yt-navigate-finish', () => {
   checkShortsQuota();
   injectStudyDrawer();
+  injectHomeFocusHero();
 });
 
 // Periodic fallback check for SPA state swaps
@@ -556,8 +612,12 @@ setInterval(() => {
   if (window.location.pathname.includes('/watch') && !document.getElementById('focustube-drawer')) {
     injectStudyDrawer();
   }
+  if ((window.location.pathname === '/' || window.location.pathname === '') && !document.getElementById('ft-home-hero')) {
+    injectHomeFocusHero();
+  }
 }, 1000);
 
 // Run immediately
 checkShortsQuota();
 injectStudyDrawer();
+injectHomeFocusHero();
