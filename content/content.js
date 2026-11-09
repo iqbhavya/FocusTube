@@ -52,8 +52,26 @@ function checkShortsQuota() {
     }, 3000);
   });
 }
-// 2. Study Drawer Injection Logic
-// 2. Study Drawer Injection Logic
+// --- Helper Functions ---
+function getActiveVideo() {
+  return document.querySelector('video.html5-main-video') || document.querySelector('video');
+}
+
+function formatTime(seconds) {
+  const totalSeconds = Math.floor(seconds || 0);
+  const mins = Math.floor(totalSeconds / 60);
+  const secs = totalSeconds % 60;
+  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+function getVideoId() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('v');
+}
+
+// --- 2. Study Drawer Injection & Interactions ---
+let activeTimestamp = 0;
+
 function injectStudyDrawer() {
   const isWatchPage = window.location.pathname.includes('/watch');
   const existingDrawer = document.getElementById('focustube-drawer');
@@ -107,6 +125,124 @@ function injectStudyDrawer() {
   // Attach directly to body
   document.body.appendChild(drawer);
   console.log('[FocusTube] Drawer appended with force styles!');
+
+  bindDrawerEvents();
+  renderNotesList();
+
+}
+
+function bindDrawerEvents() {
+  const textarea = document.getElementById('ft-note-input');
+  const timeDisplay = document.getElementById('ft-current-time');
+  const saveBtn = document.getElementById('ft-save-btn');
+  const tagsInput = document.getElementById('ft-tags-input');
+
+  // 1. Auto-pause on focus, auto-resume on blur
+  textarea.addEventListener('focus', () => {
+    const video = getActiveVideo();
+    if (video && !video.paused) {
+      video.pause();
+      textarea.dataset.wasPlaying = 'true';
+    }
+  });
+
+  textarea.addEventListener('blur', () => {
+    const video = getActiveVideo();
+    if (video && textarea.dataset.wasPlaying === 'true') {
+      video.play();
+      textarea.dataset.wasPlaying = 'false';
+    }
+  });
+
+  // 2. Hotkeys: Alt + N (Current) and Alt + Shift + N (-5s rewind)
+  window.addEventListener('keydown', (e) => {
+    if (e.altKey && e.code === 'KeyN') {
+      const video = getActiveVideo();
+      if (!video) return;
+
+      e.preventDefault();
+      activeTimestamp = e.shiftKey ? Math.max(0, Math.floor(video.currentTime - 5)) : Math.floor(video.currentTime);
+      timeDisplay.textContent = formatTime(activeTimestamp);
+      textarea.focus();
+    }
+  });
+
+  // 3. Save Note Handler
+  saveBtn.addEventListener('click', () => {
+    const content = textarea.value.trim();
+    if (!content) return;
+
+    const videoId = getVideoId();
+    if (!videoId) return;
+
+    const tags = tagsInput.value
+      .split(' ')
+      .map(t => t.trim())
+      .filter(t => t.length > 0);
+
+    const newNote = {
+      id: Date.now().toString(),
+      timestamp: activeTimestamp,
+      timestampFormatted: formatTime(activeTimestamp),
+      content: content,
+      tags: tags,
+      createdAt: Date.now()
+    };
+
+    chrome.storage.local.get([videoId], (res) => {
+      const existing = res[videoId] || [];
+      const updated = [...existing, newNote];
+      chrome.storage.local.set({ [videoId]: updated }, () => {
+        textarea.value = '';
+        tagsInput.value = '';
+        renderNotesList();
+      });
+    });
+  });
+}
+
+function renderNotesList() {
+  const list = document.getElementById('ft-notes-list');
+  const videoId = getVideoId();
+  if (!list || !videoId) return;
+
+  chrome.storage.local.get([videoId], (res) => {
+    const notes = res[videoId] || [];
+    list.innerHTML = '';
+
+    notes.sort((a, b) => a.timestamp - b.timestamp);
+
+    notes.forEach((note) => {
+      const item = document.createElement('div');
+      item.style.cssText = `
+        background: #222;
+        padding: 8px;
+        border-radius: 4px;
+        border-left: 3px solid #3ea6ff;
+        font-size: 12px;
+      `;
+      item.innerHTML = `
+        <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+          <span class="ft-seek-btn" data-time="${note.timestamp}" style="color:#3ea6ff; cursor:pointer; font-weight:bold; font-family:monospace;">
+            ${note.timestampFormatted}
+          </span>
+          <span style="color:#888;">${note.tags.join(' ')}</span>
+        </div>
+        <div style="color:#ddd; word-break:break-word;">${note.content}</div>
+      `;
+
+      // Click timestamp to seek video
+      item.querySelector('.ft-seek-btn').addEventListener('click', () => {
+        const video = getActiveVideo();
+        if (video) {
+          video.currentTime = note.timestamp;
+          video.play();
+        }
+      });
+
+      list.appendChild(item);
+    });
+  });
 }
 
 // 3. Navigation Events & Observers
