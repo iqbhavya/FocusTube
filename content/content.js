@@ -177,10 +177,15 @@ function injectStudyDrawer() {
     box-shadow: 0 8px 32px rgba(0,0,0,0.8) !important;
   `;
 
+  const dashboardUrl = chrome.runtime.getURL('dashboard/dashboard.html');
+
   drawer.innerHTML = `
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid #333; padding-bottom:8px;">
-      <h3 style="margin:0; color:#3ea6ff; font-size:16px;">FocusTube Notes</h3>
-      <span style="background:#333; color:#aaa; font-size:11px; padding:2px 6px; border-radius:4px;">Study Mode</span>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <h3 style="margin:0; color:#3ea6ff; font-size:16px;">FocusTube Notes</h3>
+        <span style="background:#333; color:#aaa; font-size:11px; padding:2px 6px; border-radius:4px;">Study Mode</span>
+      </div>
+      <a href="${dashboardUrl}" target="_blank" style="background:#222; color:#3ea6ff; border:1px solid #444; border-radius:4px; padding:2px 8px; font-size:11px; text-decoration:none; font-weight:600;" title="Open Study Library">Library ↗</a>
     </div>
     <div style="display:flex; flex-direction:column; gap:8px;">
       <div style="display:flex; justify-content:space-between; align-items:center;">

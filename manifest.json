@@ -21,5 +21,11 @@
       "js": ["content/content.js"],
       "run_at": "document_idle"
     }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["dashboard/*"],
+      "matches": ["*://*.youtube.com/*"]
+    }
   ]
 }

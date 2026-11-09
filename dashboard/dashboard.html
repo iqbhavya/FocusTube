@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FocusTube - Study Library & Problem Repository</title>
+  <link rel="stylesheet" href="dashboard.css" />
+</head>
+<body>
+  <!-- Header -->
+  <header class="hub-header">
+    <div class="hub-container header-content">
+      <div class="brand">
+        <span class="logo-icon">🎓</span>
+        <div class="brand-text">
+          <h1>FocusTube</h1>
+          <p>Study Library & Problem Repository</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="refresh-btn" class="btn btn-icon" title="Refresh library">
+          🔄 Refresh
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="hub-container main-content">
+    <!-- Stats Row -->
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">📚</div>
+        <div class="stat-info">
+          <span class="stat-val" id="stat-total-lectures">0</span>
+          <span class="stat-label">Lectures Studied</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📝</div>
+        <div class="stat-info">
+          <span class="stat-val" id="stat-total-notes">0</span>
+          <span class="stat-label">Timestamped Notes</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📸</div>
+        <div class="stat-info">
+          <span class="stat-val" id="stat-total-slides">0</span>
+          <span class="stat-label">Captured Slides</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🏷️</div>
+        <div class="stat-info">
+          <span class="stat-val" id="stat-total-tags">0</span>
+          <span class="stat-label">Unique Topics</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Filter & Search Controls -->
+    <section class="controls-card">
+      <div class="search-sort-bar">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="search-input" placeholder="Search by lecture title, notes, channel, or problem URL..." />
+          <button id="clear-search-btn" class="clear-btn" style="display:none;">✕</button>
+        </div>
+        <div class="sort-box">
+          <label for="sort-select">Sort by:</label>
+          <select id="sort-select">
+            <option value="recent">Recently Updated</option>
+            <option value="notes">Most Notes</option>
+            <option value="title">Lecture Title (A-Z)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Tag Filter Pills -->
+      <div class="tags-filter-bar">
+        <span class="tags-filter-label">Filter Topics:</span>
+        <div id="tags-container" class="tags-list">
+          <button class="tag-chip active" data-tag="all">All Topics</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Lectures List Section -->
+    <section id="lectures-section">
+      <div id="lectures-list" class="lectures-container">
+        <!-- Lecture cards rendered dynamically here -->
+      </div>
+
+      <!-- Empty State -->
+      <div id="empty-state" class="empty-state" style="display:none;">
+        <div class="empty-icon">📖</div>
+        <h3>No Study Lectures Found</h3>
+        <p>Take notes on any YouTube lecture using <strong>Alt + N</strong> or capture slides with <strong>Alt + S</strong>. They will automatically appear here!</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- Add Problem Link Modal -->
+  <div id="problem-modal" class="modal-backdrop" style="display:none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>🔗 Attach Problem / Reference Link</h3>
+        <button id="close-problem-modal" class="modal-close-btn">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-hint">Link a coding challenge (LeetCode, HackerRank), GitHub repo, or documentation to this lecture:</p>
+        <input type="hidden" id="modal-video-id" />
+        <div class="form-group">
+          <label for="modal-problem-url">Problem or Reference URL:</label>
+          <input type="url" id="modal-problem-url" placeholder="https://leetcode.com/problems/binary-search/" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="cancel-problem-btn" class="btn btn-secondary">Cancel</button>
+        <button id="save-problem-btn" class="btn btn-primary">Attach Link</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fullscreen Slide Image Modal (Lightbox) -->
+  <div id="image-modal" class="modal-backdrop" style="display:none;">
+    <div class="image-modal-content">
+      <button id="close-image-modal" class="modal-close-btn top-right">✕</button>
+      <img id="enlarged-img" src="" alt="Lecture Slide" />
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast"></div>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>
