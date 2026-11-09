@@ -12,7 +12,7 @@
   "content_scripts": [
     {
       "matches": ["*://*.youtube.com/*"],
-      "css": ["content/blocker.css"],
+      "css": ["content/blocker.css","content/drawer.css"],
       "run_at": "document_start"
     },
     {

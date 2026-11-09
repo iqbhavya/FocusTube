@@ -1,0 +1,124 @@
+/* ==========================================================================
+   FocusTube - In-Video Study Drawer
+   ========================================================================== */
+
+#focustube-drawer {
+  position: fixed;
+  top: 56px; /* Below YouTube's top masthead */
+  right: 0;
+  width: 360px;
+  height: calc(100vh - 56px);
+  background-color: #0f0f0f;
+  color: #f1f1f1;
+  border-left: 1px solid #272727;
+  z-index: 2050; /* Above YouTube player controls */
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  box-sizing: border-box;
+  font-family: "Roboto", sans-serif;
+  box-shadow: -4px 0 16px rgba(0, 0, 0, 0.4);
+}
+
+.ft-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #272727;
+  padding-bottom: 10px;
+  margin-bottom: 12px;
+}
+
+.ft-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #3ea6ff;
+}
+
+.ft-badge {
+  background: #272727;
+  color: #aaa;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+}
+
+.ft-input-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.ft-time-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ft-timestamp {
+  font-family: monospace;
+  font-size: 14px;
+  font-weight: bold;
+  color: #3ea6ff;
+  background: #1c2733;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+#ft-note-input {
+  width: 100%;
+  height: 70px;
+  background: #181818;
+  border: 1px solid #333;
+  border-radius: 6px;
+  color: #fff;
+  padding: 8px;
+  resize: none;
+  font-size: 13px;
+  box-sizing: border-box;
+  outline: none;
+}
+
+#ft-note-input:focus {
+  border-color: #3ea6ff;
+}
+
+#ft-tags-input {
+  width: 100%;
+  background: #181818;
+  border: 1px solid #333;
+  border-radius: 6px;
+  color: #fff;
+  padding: 6px 8px;
+  font-size: 12px;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.ft-btn {
+  background: #3ea6ff;
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  padding: 7px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ft-btn:hover {
+  background: #65b8ff;
+}
+
+#ft-notes-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+  border-top: 1px solid #222;
+  padding-top: 10px;
+}
