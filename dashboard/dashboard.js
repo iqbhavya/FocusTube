@@ -43,6 +43,9 @@ function initEventListeners() {
     showToast('Library refreshed! 🔄');
   });
 
+  // Export All
+  document.getElementById('export-all-btn').addEventListener('click', exportAllMarkdown);
+
   // Problem Modal Handlers
   document.getElementById('close-problem-modal').addEventListener('click', closeProblemModal);
   document.getElementById('cancel-problem-btn').addEventListener('click', closeProblemModal);
@@ -279,6 +282,12 @@ function createLectureCard(lec) {
         <button class="btn btn-secondary btn-sm toggle-notes-btn">
           👁️ Show Notes (${lec.notes.length})
         </button>
+        <button class="btn btn-secondary btn-sm copy-md-btn" title="Copy Obsidian/Notion Markdown">
+          📋 Copy MD
+        </button>
+        <button class="btn btn-primary btn-sm dl-md-btn" title="Download .md File">
+          ⬇️ Export
+        </button>
         <button class="btn btn-danger-outline btn-sm delete-lec-btn" title="Delete Lecture">
           🗑️
         </button>
@@ -313,6 +322,19 @@ function createLectureCard(lec) {
       notesSection.style.display = 'none';
       toggleNotesBtn.textContent = `👁️ Show Notes (${lec.notes.length})`;
     }
+  });
+
+  // Copy Markdown
+  card.querySelector('.copy-md-btn').addEventListener('click', () => {
+    const md = generateLectureMarkdown(lec);
+    navigator.clipboard.writeText(md).then(() => {
+      showToast('Markdown copied to clipboard! Ready for Obsidian/Notion 📋');
+    });
+  });
+
+  // Download Markdown
+  card.querySelector('.dl-md-btn').addEventListener('click', () => {
+    downloadMarkdownFile(lec);
   });
 
   // Delete Lecture
@@ -474,7 +496,128 @@ function deleteSingleNote(videoId, noteId) {
   });
 }
 
-// --- 10. Helpers ---
+// --- 10. Markdown Export Engine (Obsidian / Notion Ready) ---
+function generateLectureMarkdown(lec) {
+  const dateStr = new Date(lec.updatedAt).toISOString().slice(0, 10);
+  const cleanTags = (lec.tags || []).map(t => t.replace('#', '')).filter(Boolean);
+
+  let md = '';
+
+  // 1. Obsidian / Notion YAML Frontmatter
+  md += `---\n`;
+  md += `title: "${lec.title.replace(/"/g, '\\"')}"\n`;
+  md += `source: "${lec.url}"\n`;
+  md += `channel: "${lec.channel.replace(/"/g, '\\"')}"\n`;
+  md += `date: ${dateStr}\n`;
+  if (cleanTags.length > 0) {
+    md += `tags:\n`;
+    cleanTags.forEach(t => {
+      md += `  - ${t}\n`;
+    });
+  }
+  md += `---\n\n`;
+
+  // 2. Header & Metadata
+  md += `# ${lec.title}\n\n`;
+  md += `- **Channel:** ${lec.channel}\n`;
+  md += `- **Lecture URL:** [Watch on YouTube](${lec.url})\n`;
+  md += `- **Date Studied:** ${dateStr}\n`;
+
+  if (lec.tags && lec.tags.length > 0) {
+    md += `- **Topics:** ${lec.tags.join(' ')}\n`;
+  }
+  md += `\n`;
+
+  // 3. Problem & Reference Repository Links
+  if (lec.problemLinks && lec.problemLinks.length > 0) {
+    md += `### 📌 Associated Problems & Code References\n\n`;
+    lec.problemLinks.forEach(p => {
+      const label = getDomainLabel(p);
+      md += `- [${label}](${p})\n`;
+    });
+    md += `\n`;
+  }
+
+  md += `---\n\n`;
+  md += `## 📝 Lecture Notes & Timestamps\n\n`;
+
+  if (!lec.notes || lec.notes.length === 0) {
+    md += `*No timestamped notes recorded.*\n\n`;
+  } else {
+    lec.notes.forEach((note) => {
+      const timestampSec = note.timestamp || 0;
+      const formattedTime = note.timestampFormatted || '00:00';
+      const seekUrl = `https://www.youtube.com/watch?v=${lec.id}&t=${timestampSec}s`;
+
+      md += `### [${formattedTime}](${seekUrl})\n\n`;
+      md += `${note.content}\n\n`;
+
+      if (note.problemUrl) {
+        md += `> 🔗 **Problem Link:** [${getDomainLabel(note.problemUrl)}](${note.problemUrl})\n\n`;
+      }
+
+      if (note.screenshot) {
+        md += `![Slide Capture at ${formattedTime}](${note.screenshot})\n\n`;
+      }
+
+      md += `\n`;
+    });
+  }
+
+  md += `---\n`;
+  md += `*Exported from FocusTube Distraction-Free Study Workspace*\n`;
+
+  return md;
+}
+
+function downloadMarkdownFile(lec) {
+  const md = generateLectureMarkdown(lec);
+  const safeTitle = lec.title.replace(/[^a-z0-9_-]/gi, '_').substring(0, 40);
+  const filename = `FocusTube_${safeTitle}.md`;
+
+  const blob = new Blob([md], { type: 'text/markdown;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  showToast(`Downloaded ${filename}! 📄`);
+}
+
+function exportAllMarkdown() {
+  if (allLectures.length === 0) {
+    showToast('No lectures to export.');
+    return;
+  }
+
+  let bundleMd = `# FocusTube - Study Library Export\n\n`;
+  bundleMd += `Generated on: ${new Date().toLocaleString()}\n`;
+  bundleMd += `Total Lectures: ${allLectures.length}\n\n`;
+  bundleMd += `---\n\n`;
+
+  allLectures.forEach((lec) => {
+    bundleMd += generateLectureMarkdown(lec);
+    bundleMd += `\n\n\\pagebreak\n\n`;
+  });
+
+  const blob = new Blob([bundleMd], { type: 'text/markdown;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `FocusTube_Complete_Library_${new Date().toISOString().slice(0, 10)}.md`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  showToast('All lectures exported to Markdown! 📦');
+}
+
+// --- 11. Helpers ---
 function getDomainLabel(urlStr) {
   try {
     const parsed = new URL(urlStr);
