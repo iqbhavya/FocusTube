@@ -1,7 +1,4 @@
-/* ==========================================================================
-   FocusTube - In-Video Study Drawer & Component Styles
-   Premium Glassmorphic Dark UI
-   ========================================================================== */
+/* !important prevents YouTube's global CSS from breaking injected drawer layout */
 
 #focustube-drawer {
   position: fixed !important;
@@ -33,6 +30,12 @@
 
 #focustube-drawer * {
   box-sizing: border-box !important;
+}
+
+#focustube-drawer svg,
+#ft-drawer-bubble svg {
+  flex-shrink: 0 !important;
+  display: block !important;
 }
 
 /* Header & Drag Handle */
@@ -136,6 +139,16 @@
 #ft-drawer-bubble:hover {
   transform: translateY(-2px) !important;
   box-shadow: 0 14px 36px rgba(0, 0, 0, 0.8), 0 0 16px rgba(62, 166, 255, 0.4) !important;
+}
+
+#ft-bubble-count {
+  background: #3ea6ff !important;
+  color: #000 !important;
+  border-radius: 10px !important;
+  font-size: 10px !important;
+  padding: 1px 6px !important;
+  font-weight: 700 !important;
+  line-height: 1.4 !important;
 }
 
 /* Form Inputs */
@@ -433,6 +446,20 @@
 
 .ft-note-thumb:hover {
   opacity: 0.9 !important;
+}
+
+.ft-note-text {
+  color: #e4e4e7 !important;
+  word-break: break-word !important;
+  white-space: pre-wrap !important;
+  line-height: 1.45 !important;
+}
+
+.ft-note-tags {
+  margin-top: 4px !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 4px !important;
 }
 
 /* Lightbox Modal */

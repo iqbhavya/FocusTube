@@ -1,26 +1,26 @@
-/* 1. Hide the Homepage Recommendations Grid & Filter Chips */
+/* Homepage feed & topic chips */
 ytd-browse[page-subtype="home"] #contents,
 ytd-browse[page-subtype="home"] ytd-feed-filter-chip-bar-renderer,
 ytd-browse[page-subtype="home"] iron-selector#chips {
   display: none !important;
 }
 
-/* 2. Hide "Up Next" / Suggested Videos in the Watch page sidebar */
+/* Watch sidebar recommendations */
 #related {
   display: none !important;
 }
 
-/* 3. Hide Comments */
+/* Video comments */
 #comments {
   display: none !important;
 }
 
-/* 4. Hide Endscreen video suggestion tiles */
+/* Player end-screen cards */
 .ytp-endscreen-content {
   display: none !important;
 }
 
-/* 5. Hide Shorts navigation links from the side drawer */
+/* Shorts links in navigation sidebar */
 ytd-guide-entry-renderer:has(a[title="Shorts"]),
 ytd-mini-guide-entry-renderer[aria-label="Shorts"] {
   display: none !important;
