@@ -1,9 +1,18 @@
-// ==========================================================================
-// FocusTube - Study Dashboard & Problem Repository Controller
-// Full-Page Library, Tag Filtering & Problem Linking
-// ==========================================================================
+const SVG = {
+  eye: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`,
+  eyeOff: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`,
+  copy: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`,
+  download: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`,
+  trash: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`,
+  link: `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`,
+  play: `<svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>`,
+  close: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
+  external: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`,
+  fileText: `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`,
+  image: `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`
+};
 
-let allLectures = []; // [{ id, title, channel, url, tags, problemLinks, updatedAt, createdAt, notes: [] }]
+let allLectures = [];
 let activeTagFilter = 'all';
 let searchQuery = '';
 let currentSort = 'recent';
@@ -14,13 +23,12 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initEventListeners() {
-  // Search
   const searchInput = document.getElementById('search-input');
   const clearSearchBtn = document.getElementById('clear-search-btn');
 
   searchInput.addEventListener('input', (e) => {
     searchQuery = e.target.value.trim().toLowerCase();
-    clearSearchBtn.style.display = searchQuery ? 'block' : 'none';
+    clearSearchBtn.style.display = searchQuery ? 'inline-flex' : 'none';
     renderDashboard();
   });
 
@@ -31,58 +39,50 @@ function initEventListeners() {
     renderDashboard();
   });
 
-  // Sort
   document.getElementById('sort-select').addEventListener('change', (e) => {
     currentSort = e.target.value;
     renderDashboard();
   });
 
-  // Refresh
   document.getElementById('refresh-btn').addEventListener('click', () => {
     loadLibraryData();
-    showToast('Library refreshed! 🔄');
+    showToast('Library refreshed');
   });
 
-  // Export All
   document.getElementById('export-all-btn').addEventListener('click', exportAllMarkdown);
 
-  // Problem Modal Handlers
   document.getElementById('close-problem-modal').addEventListener('click', closeProblemModal);
   document.getElementById('cancel-problem-btn').addEventListener('click', closeProblemModal);
   document.getElementById('save-problem-btn').addEventListener('click', saveProblemLink);
 
-  // Lightbox Modal Handlers
   document.getElementById('close-image-modal').addEventListener('click', closeImageModal);
   document.getElementById('image-modal').addEventListener('click', (e) => {
     if (e.target.id === 'image-modal') closeImageModal();
   });
 }
 
-// --- 1. Load & Sync Library Data ---
 function loadLibraryData() {
   chrome.storage.local.get(null, (allData) => {
-    let registry = allData.ft_videos || {};
+    const registry = allData.ft_videos || {};
     const recoveredLectures = [];
 
-    // Scan all storage keys to discover and backfill any historical notes
+    // Backfill metadata for notes saved before ft_videos index tracking existed
     Object.keys(allData).forEach((key) => {
       if (key === 'ft_videos' || key === 'shortsData') return;
       const value = allData[key];
-      if (Array.isArray(value) && value.length > 0 && value[0].timestamp !== undefined) {
-        if (!registry[key]) {
-          registry[key] = {
-            id: key,
-            title: `YouTube Lecture (${key})`,
-            channel: 'YouTube Creator',
-            url: `https://www.youtube.com/watch?v=${key}`,
-            noteCount: value.length,
-            tags: [],
-            problemLinks: [],
-            updatedAt: Date.now(),
-            createdAt: Date.now()
-          };
-          recoveredLectures.push(key);
-        }
+      if (Array.isArray(value) && value.length > 0 && value[0].timestamp !== undefined && !registry[key]) {
+        registry[key] = {
+          id: key,
+          title: `YouTube Lecture (${key})`,
+          channel: 'YouTube Creator',
+          url: `https://www.youtube.com/watch?v=${key}`,
+          noteCount: value.length,
+          tags: [],
+          problemLinks: [],
+          updatedAt: Date.now(),
+          createdAt: Date.now()
+        };
+        recoveredLectures.push(key);
       }
     });
 
@@ -90,13 +90,11 @@ function loadLibraryData() {
       chrome.storage.local.set({ ft_videos: registry });
     }
 
-    // Gather lecture records with their associated notes
     const lectureList = [];
     Object.keys(registry).forEach((videoId) => {
       const meta = registry[videoId];
       const notes = (allData[videoId] || []).slice().sort((a, b) => a.timestamp - b.timestamp);
 
-      // Consolidate unique tags and problem links
       const tagsSet = new Set(meta.tags || []);
       const problemsSet = new Set(meta.problemLinks || []);
 
@@ -114,7 +112,7 @@ function loadLibraryData() {
         problemLinks: Array.from(problemsSet),
         updatedAt: meta.updatedAt || meta.createdAt || Date.now(),
         createdAt: meta.createdAt || Date.now(),
-        notes: notes
+        notes
       });
     });
 
@@ -125,7 +123,6 @@ function loadLibraryData() {
   });
 }
 
-// --- 2. Update Global Stats ---
 function updateGlobalStats() {
   let totalNotes = 0;
   let totalSlides = 0;
@@ -143,7 +140,6 @@ function updateGlobalStats() {
   document.getElementById('stat-total-tags').textContent = uniqueTags.size;
 }
 
-// --- 3. Render Tag Chips Carousel ---
 function renderTagChips() {
   const container = document.getElementById('tags-container');
   const tagCounts = {};
@@ -182,21 +178,15 @@ function renderTagChips() {
   });
 }
 
-// --- 4. Filter, Sort & Render Dashboard ---
 function renderDashboard() {
   const container = document.getElementById('lectures-list');
   const emptyState = document.getElementById('empty-state');
 
-  // Filter
-  let filtered = allLectures.filter((lec) => {
-    // Topic tag filter
-    if (activeTagFilter !== 'all') {
-      if (!lec.tags || !lec.tags.includes(activeTagFilter)) {
-        return false;
-      }
+  const filtered = allLectures.filter((lec) => {
+    if (activeTagFilter !== 'all' && (!lec.tags || !lec.tags.includes(activeTagFilter))) {
+      return false;
     }
 
-    // Search query match
     if (searchQuery) {
       const matchTitle = lec.title.toLowerCase().includes(searchQuery);
       const matchChannel = lec.channel.toLowerCase().includes(searchQuery);
@@ -209,15 +199,10 @@ function renderDashboard() {
     return true;
   });
 
-  // Sort
   filtered.sort((a, b) => {
-    if (currentSort === 'recent') {
-      return b.updatedAt - a.updatedAt;
-    } else if (currentSort === 'notes') {
-      return b.notes.length - a.notes.length;
-    } else if (currentSort === 'title') {
-      return a.title.localeCompare(b.title);
-    }
+    if (currentSort === 'recent') return b.updatedAt - a.updatedAt;
+    if (currentSort === 'notes') return b.notes.length - a.notes.length;
+    if (currentSort === 'title') return a.title.localeCompare(b.title);
     return 0;
   });
 
@@ -235,7 +220,6 @@ function renderDashboard() {
   });
 }
 
-// --- 5. Create Lecture Card Element ---
 function createLectureCard(lec) {
   const card = document.createElement('article');
   card.className = 'lecture-card';
@@ -248,56 +232,48 @@ function createLectureCard(lec) {
     year: 'numeric'
   });
 
-  // Attached problem badges
-  let problemBadgesHtml = '';
-  if (lec.problemLinks && lec.problemLinks.length > 0) {
-    problemBadgesHtml = lec.problemLinks.map(url => {
-      const info = getProblemBadgeInfo(url);
-      return `<a href="${url}" target="_blank" class="problem-pill ${info.brandClass}" title="${url}">🔗 ${info.label}</a>`;
-    }).join('');
-  }
+  const problemBadgesHtml = (lec.problemLinks || []).map((url) => {
+    const info = getProblemBadgeInfo(url);
+    return `<a href="${escapeHtml(url)}" target="_blank" class="problem-pill ${info.brandClass}" title="${escapeHtml(url)}">${SVG.link} ${escapeHtml(info.label)}</a>`;
+  }).join('');
 
-  // Topic tags
-  let tagsHtml = '';
-  if (lec.tags && lec.tags.length > 0) {
-    tagsHtml = lec.tags.map(t => `<span class="tag-badge">${t}</span>`).join('');
-  }
+  const tagsHtml = (lec.tags || []).map(t => `<span class="tag-badge">${escapeHtml(t)}</span>`).join('');
 
   card.innerHTML = `
     <div class="lecture-card-header">
       <div class="lecture-title-col">
         <h2 class="lecture-title">
-          <a href="${lec.url}" target="_blank" title="Open YouTube Lecture">
-            ${escapeHtml(lec.title)} ↗
+          <a href="${escapeHtml(lec.url)}" target="_blank" title="Open on YouTube">
+            ${escapeHtml(lec.title)} ${SVG.external}
           </a>
         </h2>
         <div class="lecture-meta">
-          <span class="channel-tag">📺 ${escapeHtml(lec.channel)}</span>
-          <span class="lecture-stats-badge">📝 ${lec.notes.length} Notes</span>
-          <span class="lecture-stats-badge">📸 ${slideCount} Slides</span>
-          <span>Updated: ${formattedDate}</span>
+          <span class="channel-tag">${escapeHtml(lec.channel)}</span>
+          <span class="lecture-stats-badge">${SVG.fileText} ${lec.notes.length} Notes</span>
+          <span class="lecture-stats-badge">${SVG.image} ${slideCount} Slides</span>
+          <span>Updated ${formattedDate}</span>
         </div>
       </div>
       <div class="lecture-actions">
         <button class="btn btn-secondary btn-sm toggle-notes-btn">
-          👁️ Show Notes (${lec.notes.length})
+          ${SVG.eye} Show Notes (${lec.notes.length})
         </button>
-        <button class="btn btn-secondary btn-sm copy-md-btn" title="Copy Obsidian/Notion Markdown">
-          📋 Copy MD
+        <button class="btn btn-secondary btn-sm copy-md-btn" title="Copy Markdown">
+          ${SVG.copy} Copy MD
         </button>
-        <button class="btn btn-primary btn-sm dl-md-btn" title="Download .md File">
-          ⬇️ Export
+        <button class="btn btn-primary btn-sm dl-md-btn" title="Download .md file">
+          ${SVG.download} Export
         </button>
-        <button class="btn btn-danger-outline btn-sm delete-lec-btn" title="Delete Lecture">
-          🗑️
+        <button class="btn btn-danger-outline btn-sm delete-lec-btn" title="Delete lecture">
+          ${SVG.trash}
         </button>
       </div>
     </div>
 
     <div class="problem-links-row">
-      <span class="problem-label">Attached Links:</span>
+      <span class="problem-label">Links:</span>
       ${problemBadgesHtml}
-      <button class="add-problem-pill" data-video-id="${lec.id}">+ Add Link</button>
+      <button class="add-problem-pill" data-video-id="${escapeHtml(lec.id)}">+ Add Link</button>
     </div>
 
     ${tagsHtml ? `<div class="lecture-tags-row">${tagsHtml}</div>` : ''}
@@ -307,7 +283,6 @@ function createLectureCard(lec) {
     </div>
   `;
 
-  // Bind Card Events
   const notesSection = card.querySelector('.lecture-notes-section');
   const toggleNotesBtn = card.querySelector('.toggle-notes-btn');
   const notesGrid = card.querySelector('.notes-grid');
@@ -317,34 +292,30 @@ function createLectureCard(lec) {
     if (isHidden) {
       renderNotesGrid(lec, notesGrid);
       notesSection.style.display = 'flex';
-      toggleNotesBtn.textContent = `🙈 Hide Notes (${lec.notes.length})`;
+      toggleNotesBtn.innerHTML = `${SVG.eyeOff} Hide Notes (${lec.notes.length})`;
     } else {
       notesSection.style.display = 'none';
-      toggleNotesBtn.textContent = `👁️ Show Notes (${lec.notes.length})`;
+      toggleNotesBtn.innerHTML = `${SVG.eye} Show Notes (${lec.notes.length})`;
     }
   });
 
-  // Copy Markdown
   card.querySelector('.copy-md-btn').addEventListener('click', () => {
     const md = generateLectureMarkdown(lec);
     navigator.clipboard.writeText(md).then(() => {
-      showToast('Markdown copied to clipboard! Ready for Obsidian/Notion 📋');
+      showToast('Markdown copied to clipboard');
     });
   });
 
-  // Download Markdown
   card.querySelector('.dl-md-btn').addEventListener('click', () => {
     downloadMarkdownFile(lec);
   });
 
-  // Delete Lecture
   card.querySelector('.delete-lec-btn').addEventListener('click', () => {
-    if (confirm(`Are you sure you want to delete "${lec.title}" and all its notes?`)) {
+    if (confirm(`Delete "${lec.title}" and all its notes?`)) {
       deleteLecture(lec.id);
     }
   });
 
-  // Add Problem Link
   card.querySelector('.add-problem-pill').addEventListener('click', () => {
     openProblemModal(lec.id);
   });
@@ -352,7 +323,6 @@ function createLectureCard(lec) {
   return card;
 }
 
-// --- 6. Render Notes Grid for a Lecture ---
 function renderNotesGrid(lec, container) {
   container.innerHTML = '';
 
@@ -368,38 +338,33 @@ function renderNotesGrid(lec, container) {
     const timestampSec = note.timestamp || 0;
     const seekUrl = `https://www.youtube.com/watch?v=${lec.id}&t=${timestampSec}s`;
 
-    let screenshotHtml = '';
-    if (note.screenshot) {
-      screenshotHtml = `<img src="${note.screenshot}" class="note-screenshot-thumb" alt="Captured Slide" title="Click to enlarge" />`;
-    }
+    const screenshotHtml = note.screenshot
+      ? `<img src="${note.screenshot}" class="note-screenshot-thumb" alt="Captured slide" title="Click to enlarge" />`
+      : '';
 
     let problemHtml = '';
     if (note.problemUrl) {
       const info = getProblemBadgeInfo(note.problemUrl);
-      problemHtml = `<a href="${note.problemUrl}" target="_blank" class="problem-pill ${info.brandClass}" style="font-size:10px; margin-top:4px;">🔗 ${info.label}</a>`;
+      problemHtml = `<a href="${escapeHtml(note.problemUrl)}" target="_blank" class="problem-pill ${info.brandClass}" style="font-size:10px; margin-top:4px;">${SVG.link} ${escapeHtml(info.label)}</a>`;
     }
 
     item.innerHTML = `
       <div class="note-item-header">
-        <a href="${seekUrl}" target="_blank" class="timestamp-link" title="Play at ${note.timestampFormatted || '00:00'}">
-          ▶ ${note.timestampFormatted || '00:00'}
+        <a href="${seekUrl}" target="_blank" class="timestamp-link" title="Play at ${escapeHtml(note.timestampFormatted || '00:00')}">
+          ${SVG.play} ${escapeHtml(note.timestampFormatted || '00:00')}
         </a>
-        <button class="note-delete-btn" title="Delete this note">✕</button>
+        <button class="note-delete-btn" title="Delete note">${SVG.close}</button>
       </div>
       ${screenshotHtml}
       <div class="note-content-text">${formatNoteContent(note.content)}</div>
       ${problemHtml}
     `;
 
-    // Zoom Image in Lightbox
     const thumb = item.querySelector('.note-screenshot-thumb');
     if (thumb) {
-      thumb.addEventListener('click', () => {
-        openImageModal(note.screenshot);
-      });
+      thumb.addEventListener('click', () => openImageModal(note.screenshot));
     }
 
-    // Delete single note
     item.querySelector('.note-delete-btn').addEventListener('click', () => {
       deleteSingleNote(lec.id, note.id);
     });
@@ -408,7 +373,6 @@ function renderNotesGrid(lec, container) {
   });
 }
 
-// --- 7. Problem Modal Controller ---
 function openProblemModal(videoId) {
   document.getElementById('modal-video-id').value = videoId;
   document.getElementById('modal-problem-url').value = '';
@@ -446,17 +410,15 @@ function saveProblemLink() {
       chrome.storage.local.set({ ft_videos: registry }, () => {
         closeProblemModal();
         loadLibraryData();
-        showToast('Problem link attached! 🔗');
+        showToast('Problem link attached');
       });
     }
   });
 }
 
-// --- 8. Lightbox Image Modal ---
 function openImageModal(src) {
   const modal = document.getElementById('image-modal');
-  const img = document.getElementById('enlarged-img');
-  img.src = src;
+  document.getElementById('enlarged-img').src = src;
   modal.style.display = 'flex';
 }
 
@@ -464,7 +426,6 @@ function closeImageModal() {
   document.getElementById('image-modal').style.display = 'none';
 }
 
-// --- 9. Deletions ---
 function deleteLecture(videoId) {
   chrome.storage.local.remove([videoId], () => {
     chrome.storage.local.get(['ft_videos'], (res) => {
@@ -472,7 +433,7 @@ function deleteLecture(videoId) {
       delete registry[videoId];
       chrome.storage.local.set({ ft_videos: registry }, () => {
         loadLibraryData();
-        showToast('Lecture deleted. 🗑️');
+        showToast('Lecture deleted');
       });
     });
   });
@@ -480,10 +441,9 @@ function deleteLecture(videoId) {
 
 function deleteSingleNote(videoId, noteId) {
   chrome.storage.local.get([videoId, 'ft_videos'], (res) => {
-    const notes = res[videoId] || [];
-    const updated = notes.filter(n => n.id !== noteId);
-
+    const updated = (res[videoId] || []).filter(n => n.id !== noteId);
     const updates = { [videoId]: updated };
+
     if (res.ft_videos && res.ft_videos[videoId]) {
       res.ft_videos[videoId].noteCount = updated.length;
       res.ft_videos[videoId].updatedAt = Date.now();
@@ -492,33 +452,29 @@ function deleteSingleNote(videoId, noteId) {
 
     chrome.storage.local.set(updates, () => {
       loadLibraryData();
-      showToast('Note deleted.');
+      showToast('Note deleted');
     });
   });
 }
 
-// --- 10. Markdown Export Engine (Obsidian / Notion Ready) ---
 function generateLectureMarkdown(lec) {
   const dateStr = new Date(lec.updatedAt).toISOString().slice(0, 10);
   const cleanTags = (lec.tags || []).map(t => t.replace('#', '')).filter(Boolean);
 
-  let md = '';
-
-  // 1. Obsidian / Notion YAML Frontmatter
-  md += `---\n`;
+  // YAML frontmatter for Obsidian / Notion imports
+  let md = `---\n`;
   md += `title: "${lec.title.replace(/"/g, '\\"')}"\n`;
   md += `source: "${lec.url}"\n`;
   md += `channel: "${lec.channel.replace(/"/g, '\\"')}"\n`;
   md += `date: ${dateStr}\n`;
   if (cleanTags.length > 0) {
     md += `tags:\n`;
-    cleanTags.forEach(t => {
+    cleanTags.forEach((t) => {
       md += `  - ${t}\n`;
     });
   }
   md += `---\n\n`;
 
-  // 2. Header & Metadata
   md += `# ${lec.title}\n\n`;
   md += `- **Channel:** ${lec.channel}\n`;
   md += `- **Lecture URL:** [Watch on YouTube](${lec.url})\n`;
@@ -529,18 +485,16 @@ function generateLectureMarkdown(lec) {
   }
   md += `\n`;
 
-  // 3. Problem & Reference Repository Links
   if (lec.problemLinks && lec.problemLinks.length > 0) {
-    md += `### 📌 Associated Problems & Code References\n\n`;
-    lec.problemLinks.forEach(p => {
-      const label = getDomainLabel(p);
-      md += `- [${label}](${p})\n`;
+    md += `### Associated Links\n\n`;
+    lec.problemLinks.forEach((p) => {
+      md += `- [${getDomainLabel(p)}](${p})\n`;
     });
     md += `\n`;
   }
 
   md += `---\n\n`;
-  md += `## 📝 Lecture Notes & Timestamps\n\n`;
+  md += `## Lecture Notes\n\n`;
 
   if (!lec.notes || lec.notes.length === 0) {
     md += `*No timestamped notes recorded.*\n\n`;
@@ -554,7 +508,7 @@ function generateLectureMarkdown(lec) {
       md += `${note.content}\n\n`;
 
       if (note.problemUrl) {
-        md += `> 🔗 **Problem Link:** [${getDomainLabel(note.problemUrl)}](${note.problemUrl})\n\n`;
+        md += `> **Problem:** [${getDomainLabel(note.problemUrl)}](${note.problemUrl})\n\n`;
       }
 
       if (note.screenshot) {
@@ -566,7 +520,7 @@ function generateLectureMarkdown(lec) {
   }
 
   md += `---\n`;
-  md += `*Exported from FocusTube Distraction-Free Study Workspace*\n`;
+  md += `*Exported via FocusTube*\n`;
 
   return md;
 }
@@ -576,27 +530,18 @@ function downloadMarkdownFile(lec) {
   const safeTitle = lec.title.replace(/[^a-z0-9_-]/gi, '_').substring(0, 40);
   const filename = `FocusTube_${safeTitle}.md`;
 
-  const blob = new Blob([md], { type: 'text/markdown;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-
-  showToast(`Downloaded ${filename}! 📄`);
+  triggerFileDownload(md, filename);
+  showToast(`Downloaded ${filename}`);
 }
 
 function exportAllMarkdown() {
   if (allLectures.length === 0) {
-    showToast('No lectures to export.');
+    showToast('No lectures to export');
     return;
   }
 
-  let bundleMd = `# FocusTube - Study Library Export\n\n`;
-  bundleMd += `Generated on: ${new Date().toLocaleString()}\n`;
+  let bundleMd = `# FocusTube — Study Library Export\n\n`;
+  bundleMd += `Generated: ${new Date().toLocaleString()}\n`;
   bundleMd += `Total Lectures: ${allLectures.length}\n\n`;
   bundleMd += `---\n\n`;
 
@@ -605,20 +550,23 @@ function exportAllMarkdown() {
     bundleMd += `\n\n\\pagebreak\n\n`;
   });
 
-  const blob = new Blob([bundleMd], { type: 'text/markdown;charset=utf-8;' });
+  const filename = `FocusTube_Complete_Library_${new Date().toISOString().slice(0, 10)}.md`;
+  triggerFileDownload(bundleMd, filename);
+  showToast('Exported all lectures to Markdown');
+}
+
+function triggerFileDownload(content, filename) {
+  const blob = new Blob([content], { type: 'text/markdown;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `FocusTube_Complete_Library_${new Date().toISOString().slice(0, 10)}.md`;
+  a.download = filename;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
-
-  showToast('All lectures exported to Markdown! 📦');
 }
 
-// --- 11. Helpers ---
 function getProblemBadgeInfo(urlStr) {
   try {
     const parsed = new URL(urlStr);
@@ -645,8 +593,7 @@ function getProblemBadgeInfo(urlStr) {
 
 function formatNoteContent(text) {
   if (!text) return '';
-  const escaped = escapeHtml(text);
-  return escaped.replace(/`([^`]+)`/g, '<code>$1</code>');
+  return escapeHtml(text).replace(/`([^`]+)`/g, '<code>$1</code>');
 }
 
 function getDomainLabel(urlStr) {
