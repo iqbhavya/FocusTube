@@ -8,36 +8,49 @@
 </head>
 <body>
   <div class="popup-card">
-    <!-- Header -->
     <header class="popup-header">
       <div class="brand">
-        <span class="logo">🎓</span>
+        <span class="logo">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3ea6ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+            <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+          </svg>
+        </span>
         <div class="brand-title">
           <h2>FocusTube</h2>
-          <span class="version">v1.1</span>
+          <span class="version">v1.0</span>
         </div>
       </div>
       <span class="badge active">Focus Mode</span>
     </header>
 
-    <!-- Dashboard Quick Launch Button -->
     <div class="launch-section">
       <button id="open-dashboard-btn" class="btn btn-primary w-full">
-        📚 Open Study Library ↗
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+        </svg>
+        Open Study Library
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+        </svg>
       </button>
     </div>
 
-    <!-- Shorts Quota Section -->
     <section class="section-card">
       <div class="section-header">
-        <span class="section-title">⏱️ Shorts Daily Allowance</span>
+        <span class="section-title">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+          Shorts Daily Allowance
+        </span>
         <span id="shorts-count-text" class="quota-count">0 / 5</span>
       </div>
       <div class="progress-bar-bg">
         <div id="shorts-progress-bar" class="progress-bar-fill" style="width: 0%;"></div>
       </div>
       <div class="limit-row">
-        <label for="shorts-limit-input">Daily allowance:</label>
+        <label for="shorts-limit-input">Daily limit:</label>
         <div class="stepper">
           <button id="limit-dec-btn" class="stepper-btn">-</button>
           <input type="number" id="shorts-limit-input" value="5" min="0" max="50" />
@@ -46,7 +59,6 @@
       </div>
     </section>
 
-    <!-- Quick Stats -->
     <section class="stats-row">
       <div class="stat-box">
         <span class="stat-number" id="popup-stat-lectures">0</span>
@@ -62,18 +74,17 @@
       </div>
     </section>
 
-    <!-- Shortcuts Cheat Sheet -->
     <div class="shortcuts-card">
       <div class="shortcut-item">
-        <kbd>Alt</kbd> + <kbd>N</kbd>
+        <span><kbd>Alt</kbd> + <kbd>N</kbd></span>
         <span>Current Timestamp</span>
       </div>
       <div class="shortcut-item">
-        <kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>N</kbd>
+        <span><kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>N</kbd></span>
         <span>Rewind 5s</span>
       </div>
       <div class="shortcut-item">
-        <kbd>Alt</kbd> + <kbd>S</kbd>
+        <span><kbd>Alt</kbd> + <kbd>S</kbd></span>
         <span>Snap Video Slide</span>
       </div>
     </div>

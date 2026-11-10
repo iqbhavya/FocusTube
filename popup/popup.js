@@ -1,14 +1,9 @@
-// ==========================================================================
-// FocusTube - Toolbar Popup Controller
-// ==========================================================================
-
 document.addEventListener('DOMContentLoaded', () => {
   initDashboardLauncher();
   loadShortsQuota();
   loadQuickStats();
 });
 
-// --- 1. Dashboard Launcher ---
 function initDashboardLauncher() {
   document.getElementById('open-dashboard-btn').addEventListener('click', () => {
     const dashboardUrl = chrome.runtime.getURL('dashboard/dashboard.html');
@@ -16,7 +11,6 @@ function initDashboardLauncher() {
   });
 }
 
-// --- 2. Shorts Quota Management ---
 function loadShortsQuota() {
   const today = new Date().toISOString().slice(0, 10);
   const defaultLimit = 5;
@@ -30,7 +24,6 @@ function loadShortsQuota() {
   chrome.storage.local.get(['shortsData'], (res) => {
     let data = res.shortsData || { date: today, count: 0, limit: defaultLimit };
 
-    // Auto reset if new day
     if (data.date !== today) {
       data = { date: today, count: 0, limit: data.limit || defaultLimit };
       chrome.storage.local.set({ shortsData: data });
@@ -38,7 +31,6 @@ function loadShortsQuota() {
 
     updateQuotaUI(data);
 
-    // Stepper listeners
     decBtn.addEventListener('click', () => {
       let currentVal = parseInt(limitInput.value, 10) || defaultLimit;
       if (currentVal > 0) {
@@ -68,11 +60,9 @@ function loadShortsQuota() {
 
   function saveNewLimit(newLimit) {
     chrome.storage.local.get(['shortsData'], (res) => {
-      let d = res.shortsData || { date: today, count: 0, limit: defaultLimit };
-      d.limit = newLimit;
-      chrome.storage.local.set({ shortsData: d }, () => {
-        updateQuotaUI(d);
-      });
+      const data = res.shortsData || { date: today, count: 0, limit: defaultLimit };
+      data.limit = newLimit;
+      chrome.storage.local.set({ shortsData: data }, () => updateQuotaUI(data));
     });
   }
 
@@ -86,7 +76,6 @@ function loadShortsQuota() {
     const percentage = limit > 0 ? Math.min(100, Math.round((count / limit) * 100)) : 100;
     progressBar.style.width = `${percentage}%`;
 
-    // Dynamic color coding based on threshold
     if (percentage >= 100) {
       progressBar.style.backgroundColor = 'var(--accent-red)';
     } else if (percentage >= 70) {
@@ -97,7 +86,6 @@ function loadShortsQuota() {
   }
 }
 
-// --- 3. Quick Stats ---
 function loadQuickStats() {
   chrome.storage.local.get(null, (allData) => {
     const registry = allData.ft_videos || {};
