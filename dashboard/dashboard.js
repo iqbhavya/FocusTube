@@ -118,9 +118,40 @@ function loadLibraryData() {
 
     allLectures = lectureList;
     updateGlobalStats();
+    updateQuotaBento(allData.shortsData);
     renderTagChips();
     renderDashboard();
   });
+}
+
+function updateQuotaBento(shortsData) {
+  const today = new Date().toISOString().slice(0, 10);
+  const limit = shortsData?.limit !== undefined ? shortsData.limit : 5;
+  const count = shortsData?.date === today ? (shortsData.count || 0) : 0;
+
+  const countEl = document.getElementById('bento-shorts-count');
+  const barEl = document.getElementById('bento-shorts-bar');
+  const statusEl = document.getElementById('bento-shorts-status');
+  if (!countEl || !barEl || !statusEl) return;
+
+  countEl.textContent = `${count} / ${limit}`;
+  const pct = limit > 0 ? Math.min(100, Math.round((count / limit) * 100)) : 100;
+  barEl.style.width = `${pct}%`;
+
+  statusEl.classList.remove('status-warn', 'status-danger');
+  barEl.classList.remove('fill-warn', 'fill-danger');
+
+  if (pct >= 100) {
+    statusEl.textContent = 'Limit Reached';
+    statusEl.classList.add('status-danger');
+    barEl.classList.add('fill-danger');
+  } else if (pct >= 70) {
+    statusEl.textContent = 'Near Limit';
+    statusEl.classList.add('status-warn');
+    barEl.classList.add('fill-warn');
+  } else {
+    statusEl.textContent = 'Protected';
+  }
 }
 
 function updateGlobalStats() {
@@ -292,9 +323,11 @@ function createLectureCard(lec) {
     if (isHidden) {
       renderNotesGrid(lec, notesGrid);
       notesSection.style.display = 'flex';
+      card.classList.add('expanded');
       toggleNotesBtn.innerHTML = `${SVG.eyeOff} Hide Notes (${lec.notes.length})`;
     } else {
       notesSection.style.display = 'none';
+      card.classList.remove('expanded');
       toggleNotesBtn.innerHTML = `${SVG.eye} Show Notes (${lec.notes.length})`;
     }
   });
