@@ -1,5 +1,5 @@
 const ICONS = {
-  brand: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#3ea6ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>`,
+  brand: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>`,
   external: `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`,
   camera: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>`,
   link: `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`,
@@ -144,7 +144,7 @@ function injectDrawerBubble() {
 
   const bubble = document.createElement('div');
   bubble.id = 'ft-drawer-bubble';
-  bubble.innerHTML = `${ICONS.brand}<span>FocusTube</span><span id="ft-bubble-count">0</span>`;
+  bubble.innerHTML = `<span class="ft-logo">${ICONS.brand}</span><span>FocusTube</span><span id="ft-bubble-count">0</span>`;
   bubble.addEventListener('click', () => {
     const drawer = document.getElementById('focustube-drawer');
     if (drawer) {
@@ -241,7 +241,7 @@ function injectStudyDrawer() {
   drawer.innerHTML = `
     <div class="ft-header" title="Drag to move">
       <div class="ft-header-left">
-        ${ICONS.brand}
+        <span class="ft-logo">${ICONS.brand}</span>
         <h3>FocusTube</h3>
         <span class="ft-badge">Study Mode</span>
       </div>
