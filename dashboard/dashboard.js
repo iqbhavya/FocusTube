@@ -187,6 +187,7 @@ function renderTagChips() {
     <button class="tag-chip ${activeTagFilter === 'all' ? 'active' : ''}" data-tag="all">
       All Topics (${allLectures.length})
     </button>
+    ${sortedTags.length === 0 ? '<span class="tags-empty-hint">Use #hashtags in notes (e.g. #dsa, #react) to filter by topic.</span>' : ''}
   `;
 
   sortedTags.forEach((tag) => {
