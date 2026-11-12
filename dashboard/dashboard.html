@@ -11,7 +11,7 @@
     <div class="hub-container header-content">
       <div class="brand">
         <span class="logo-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3ea6ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
             <path d="M6 12v5c3 3 9 3 12 0v-5"/>
           </svg>
@@ -41,11 +41,28 @@
 
   <main class="hub-container main-content">
     <section class="bento-overview">
-      <div class="bento-tile bento-tile-controls">
-        <div class="bento-tile-header">
-          <span class="bento-kicker">Search &amp; Filter</span>
-          <div class="sort-box">
-            <label for="sort-select">Sort:</label>
+      <div class="bento-tile bento-lavender bento-tile-controls">
+        <div class="bento-copy">
+          <h2 class="bento-serif-title">Search Library</h2>
+          <p class="bento-desc">Search across lecture titles, timestamped notes, slide captures, and linked problems.</p>
+        </div>
+
+        <div class="bento-float-white bento-search-widget">
+          <div class="search-box">
+            <span class="search-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+            </span>
+            <input type="text" id="search-input" placeholder="Search lectures, notes, or URLs..." />
+            <button id="clear-search-btn" class="clear-btn" style="display:none;" aria-label="Clear search">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+          <div class="sort-row">
+            <label for="sort-select">Sort order</label>
             <select id="sort-select">
               <option value="recent">Recently Updated</option>
               <option value="notes">Most Notes</option>
@@ -53,93 +70,70 @@
             </select>
           </div>
         </div>
+      </div>
 
-        <div class="search-box">
-          <span class="search-icon">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-            </svg>
-          </span>
-          <input type="text" id="search-input" placeholder="Search by lecture title, notes, channel, or problem URL..." />
-          <button id="clear-search-btn" class="clear-btn" style="display:none;" aria-label="Clear search">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-            </svg>
-          </button>
+      <div class="bento-tile bento-pink bento-tile-quota">
+        <div class="bento-copy">
+          <h2 class="bento-serif-title">Shorts Guard</h2>
+          <p class="bento-desc">Stay locked in with a daily YouTube Shorts allowance that resets automatically at midnight.</p>
         </div>
 
-        <div class="tags-filter-bar">
-          <span class="tags-filter-label">Topics</span>
-          <div id="tags-container" class="tags-list">
-            <button class="tag-chip active" data-tag="all">All Topics</button>
+        <div class="bento-float-white bento-quota-widget">
+          <div class="quota-widget-top">
+            <span class="quota-widget-label">Daily Quota</span>
+            <span id="bento-shorts-status" class="quota-pill">Protected</span>
+          </div>
+          <div class="quota-meter-row">
+            <span id="bento-shorts-count" class="quota-value">0 / 5</span>
+            <span class="quota-sub">watched today</span>
+          </div>
+          <div class="bento-progress-track">
+            <div id="bento-shorts-bar" class="bento-progress-fill" style="width: 0%;"></div>
           </div>
         </div>
       </div>
 
-      <div class="bento-tile bento-tile-stats">
-        <span class="bento-kicker">Library Metrics</span>
-        <div class="stats-bento-grid">
-          <div class="stat-card">
-            <div class="stat-icon">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-              </svg>
-            </div>
-            <div class="stat-info">
+      <div class="bento-tile bento-green bento-tile-stats">
+        <div class="bento-float-dark bento-wallet-widget">
+          <div class="wallet-top">
+            <span class="wallet-brand">FocusTube Storage</span>
+            <span class="wallet-chip">Local</span>
+          </div>
+          <div class="wallet-metrics">
+            <div class="wallet-stat">
               <span class="stat-val" id="stat-total-lectures">0</span>
               <span class="stat-label">Lectures</span>
             </div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
-              </svg>
-            </div>
-            <div class="stat-info">
+            <div class="wallet-stat">
               <span class="stat-val" id="stat-total-notes">0</span>
               <span class="stat-label">Notes</span>
             </div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
-                <polyline points="21 15 16 10 5 21"/>
-              </svg>
-            </div>
-            <div class="stat-info">
+            <div class="wallet-stat">
               <span class="stat-val" id="stat-total-slides">0</span>
               <span class="stat-label">Slides</span>
             </div>
           </div>
-          <div class="stat-card">
-            <div class="stat-icon">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
-                <line x1="7" y1="7" x2="7.01" y2="7"/>
-              </svg>
-            </div>
-            <div class="stat-info">
-              <span class="stat-val" id="stat-total-tags">0</span>
-              <span class="stat-label">Topics</span>
-            </div>
-          </div>
+        </div>
+
+        <div class="bento-copy">
+          <h2 class="bento-serif-title">Library</h2>
+          <p class="bento-desc">Your timestamped study archive and captured lecture frames.</p>
         </div>
       </div>
 
-      <div class="bento-tile bento-tile-quota">
-        <div class="bento-tile-header">
-          <span class="bento-kicker">Daily Shorts Guard</span>
-          <span id="bento-shorts-status" class="quota-pill">Active</span>
+      <div class="bento-tile bento-yellow bento-tile-topics">
+        <div class="bento-copy">
+          <div class="topics-heading-row">
+            <h2 class="bento-serif-title">Topics</h2>
+            <span class="topics-count-pill"><span id="stat-total-tags">0</span> tags</span>
+          </div>
+          <p class="bento-desc">Filter lectures instantly by subject.</p>
         </div>
-        <div class="quota-meter-row">
-          <span id="bento-shorts-count" class="quota-value">0 / 5</span>
-          <span class="quota-sub">Shorts watched today</span>
-        </div>
-        <div class="bento-progress-track">
-          <div id="bento-shorts-bar" class="bento-progress-fill" style="width: 0%;"></div>
+
+        <div class="bento-float-white bento-topics-widget">
+          <div id="tags-container" class="tags-list">
+            <button class="tag-chip active" data-tag="all">All Topics</button>
+          </div>
         </div>
       </div>
     </section>
