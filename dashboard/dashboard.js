@@ -275,7 +275,7 @@ function createLectureCard(lec) {
       <div class="lecture-title-col">
         <h2 class="lecture-title">
           <a href="${escapeHtml(lec.url)}" target="_blank" title="Open on YouTube">
-            ${escapeHtml(lec.title)} ${SVG.external}
+            ${escapeHtml(lec.title)}${SVG.external}
           </a>
         </h2>
         <div class="lecture-meta">
